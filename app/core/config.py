@@ -5,5 +5,6 @@ class Settings(BaseSettings):
 
     app_name: str = "Mini-MES"
     debug: bool = False
+    database_url:str = "postgresql+psycopg://mes:mes@localhost:5432/mini_mes"
 
 settings = Settings()
