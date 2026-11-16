@@ -9,6 +9,13 @@ class TicketCreate(BaseModel):
     description : str | None = None
     priority : int = Field(default=3,ge=1,le=5)
 
+class TicketUpdate(BaseModel):
+    """PATCH用：全部可选，只更新传了的字段"""
+    title: str | None = Field(default=None, min_length=1,max_length=200)
+    description: str | None = None
+    priority: int | None = Field(default=None,ge=1,le=5)
+    status: str | None = Field(default=None,pattern="^(pending|processing|done)$")
+
 """
 出参VO
 """
