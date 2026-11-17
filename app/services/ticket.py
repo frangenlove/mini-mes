@@ -1,9 +1,16 @@
 from sqlalchemy import func,select
 from sqlalchemy.orm import Session
 
-from app.core.exceptions import NotFoundError
-from app.models import Ticket
+from app.core.exceptions import NotFoundError,ForbiddenError,ConflictError
+from app.models import Ticket,User
 from app.schemas.ticket import TicketCreate,TicketUpdate
+
+
+ALLOWED_TRANSITIONS: dict[str,set[str]] ={
+    "pending": {"processing"},
+    "processing": {"done"},
+    "done": set() #终态，无法流转
+}
 
 def list_tickets(
         db: Session, 
@@ -41,10 +48,25 @@ def create_ticket(db: Session, payload: TicketCreate, user_id: int) -> Ticket:
     db.refresh(ticket) # 拿到数据库生成的 id / created_at
     return ticket
 
-def update_ticket(db: Session, ticket_id: int, payload: TicketUpdate) -> Ticket:
+def update_ticket(db: Session, ticket_id: int, payload: TicketUpdate,user: User) -> Ticket:
     ticket = get_ticket(db,ticket_id)
-    for field,value in payload.model_dump(exclude_unset=True).items():
-        setattr(ticket,field,value)
+
+    #权限：只有创建者或管理员可改
+    if user.role != "admin" and ticket.created_by !=user.id:
+        raise ForbiddenError("only the creator or an admin can modify this ticket")
+
+    data = payload.model_dump(exclude_unset=True)
+
+    if "status" in data and data["status"] != ticket.status:
+        target = data["status"]
+        if target not in ALLOWED_TRANSITIONS.get(ticket.status,set()):
+            raise ConflictError(f"cannot move ticket from '{ticket.status}' to '{target}'")
+        ticket.status = target
+
+    for field in ("title", "description", "priority"):
+        if field in data:
+            setattr(ticket, field, data[field])
+            
     db.commit()
     db.refresh(ticket)
     return ticket
