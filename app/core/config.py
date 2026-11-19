@@ -9,5 +9,6 @@ class Settings(BaseSettings):
     secret_key: str = "dev-secret-change-me"
     algorithm: str = "HS256"
     access_token_expired_minutes: int = 480
+    test_database_url: str = ""
 
 settings = Settings()
