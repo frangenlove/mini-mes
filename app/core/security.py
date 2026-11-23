@@ -25,7 +25,7 @@ def create_access_token(user_id: int) -> str:
     payload = {
         "sub": str(user_id), # 必须为字符串，PyJWT 2.x会校验
         "iat": now,
-        "exp": now + timedelta(minutes=settings.access_token_expired_minutes)
+        "exp": now + timedelta(minutes=settings.access_token_expire_minutes)
     }
     return jwt.encode(payload,settings.secret_key,algorithm=settings.algorithm)
 
