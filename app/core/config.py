@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     database_url:str = "postgresql+psycopg://mes:mes@localhost:5432/mini_mes"
     secret_key: str = "dev-secret-change-me"
     algorithm: str = "HS256"
-    access_token_expired_minutes: int = 480
+    access_token_expire_minutes: int = 480
     test_database_url: str = ""
 
 settings = Settings()

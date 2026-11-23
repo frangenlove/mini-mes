@@ -13,3 +13,21 @@ th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
 .badge.done { background: #e6f7ed; }
 .error { color: #c0392b; }
 footer { display: flex; gap: 12px; align-items: center; margin-top: 16px; }
+.clickable { cursor: pointer; }
+.clickable:hover { background: #fafbfc; }
+
+.drawer {
+  position: fixed; inset: 0;
+  background: rgba(0, 0, 0, .35);
+  display: flex; justify-content: flex-end;
+}
+.drawer-panel {
+  width: 420px; height: 100%;
+  background: #fff; padding: 20px;
+  overflow-y: auto;
+}
+.drawer-panel header { display: flex; justify-content: space-between; align-items: center; }
+.drawer-panel dl { display: grid; grid-template-columns: 80px 1fr; gap: 10px; }
+.drawer-panel dt { color: #888; }
+.drawer-panel dd { margin: 0; }
+.actions { display: flex; gap: 8px; }

@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { fetchTickets } from "../api/tickets";
+import { fetchMe } from "../api/auth";
 import { useAuth } from "../auth/AuthContext";
+import TicketDrawer from "../components/TicketDrawer";
+import CreateTicketModal from "../components/CreateTicketModal";
 
 const STATUS_LABEL: Record<string, string> = {
   pending: "待处理",
@@ -14,6 +17,8 @@ const SIZE = 10;
 export default function TicketsPage() {
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState("");
+  const [selectedId,setSelectedId] = useState<number | null >(null);
+  const [creating, setCreating] = useState(false);
   const { logout } = useAuth();
 
   const { data, isLoading, isError, error } = useQuery({
@@ -22,6 +27,8 @@ export default function TicketsPage() {
     placeholderData: keepPreviousData,
   });
 
+  const { data: me}= useQuery({ queryKey: ["me"],queryFn: fetchMe});
+
   const totalPages = data ? Math.max(1, Math.ceil(data.total / SIZE)) : 1;
 
   return (
@@ -29,6 +36,7 @@ export default function TicketsPage() {
       <header>
         <h1>工单列表</h1>
         <button onClick={logout}>退出</button>
+        <button onClick={ () => setCreating(true)}>+ 新建工单</button>
       </header>
 
       <div className="toolbar">
@@ -58,7 +66,7 @@ export default function TicketsPage() {
         </thead>
         <tbody>
           {data?.items.map((t) => (
-            <tr key={t.id}>
+            <tr key={t.id} className="clickable" onClick={()=>setSelectedId(t.id)}>
               <td>{t.id}</td>
               <td>{t.title}</td>
               <td><span className={`badge ${t.status}`}>{STATUS_LABEL[t.status]}</span></td>
@@ -74,6 +82,13 @@ export default function TicketsPage() {
         <span>{page} / {totalPages}</span>
         <button disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>下一页</button>
       </footer>
+
+      { selectedId !== null && (
+        <TicketDrawer id={selectedId} canDelete={me?.role === "admin"} onClose={()=>setSelectedId(null)}/>
+      )}
+
+      { creating && <CreateTicketModal onClose={ () => setCreating(false)}></CreateTicketModal>}
+
     </div>
   );
 }

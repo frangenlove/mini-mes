@@ -9,3 +9,8 @@ export async function fetchTickets(params: {
     const { data } = await client.get<Page<Ticket>>("/tickets",{params});
     return data;
 }
+
+export async function fetchTicket(id: number){
+    const { data } = await client.get<Ticket>(`/tickets/${id}`);
+    return data;
+}

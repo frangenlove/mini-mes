@@ -17,3 +17,9 @@ export interface Page<T> {
     page: number;
     size: number;
 }
+
+export interface User {
+    id: number;
+    username: string;
+    role: "admin" | "operator";
+}
